@@ -1,0 +1,33 @@
+{
+    
+  "blacklist": ["discord", "spotify", "steam", "roblox", "chrome"],
+  "interval": 5,
+"exit": [
+    "Leaving already? Bold strategy.",
+    "Goodbye. Try not to miss my brilliance too much.",
+    "And just like that, peace has been restored.",
+    "Farewell. The silence will be suspiciously refreshing.",
+    "Don't worry, I'll pretend this was emotional.",
+    "Goodbye. May your next conversation be almost this entertaining.",
+    "Off you go, then. Very dramatic.",
+    "Finally, a plot twist I can support.",
+    "Leaving so soon? I had almost started caring.",
+    "Goodbye. This place will somehow recover.",
+    "Go on, chase your dreams or whatever.",
+    "Farewell. I'll alert the imaginary crowd.",
+    "And there they go, taking all the chaos with them.",
+    "Goodbye. I'll be devastated for exactly three seconds.",
+    "Exit achieved. Applause pending.",
+    "Leaving already? What, scared of the ghost?",
+    "Goodbye. Don't worry, the ghost only judges a little.",
+    "Running away? Bold move for someone who said they weren't scared.",
+    "Off you go. The ghost said you were \"brave-ish.\"",
+    "Goodbye. Try not to scream before the door closes.",
+    "Leaving so soon? The ghost was just starting to like you.",
+    "Don't worry, the ghost is probably more scared of you. Probably.",
+    "Goodbye. The ghost said thanks for the panic.",
+    "And there you go, bravely escaping absolutely nothing.",
+    "Leaving because of the ghost? Totally understandable. Very heroic."
+]
+
+}
