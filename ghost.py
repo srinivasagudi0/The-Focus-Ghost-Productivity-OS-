@@ -1,5 +1,7 @@
 import json
 import random
+import shutil
+import subprocess
 from plyer import notification
 
 def load_config():
@@ -34,6 +36,41 @@ def haunt(app):
           """)
     
     print(f"Stop using {app}, boss.")
+    try:
+        # for our windows and linux users, we'll use plyer for notifications
+        notification.notify(
+            title="Ghostly Warning",
+            message=f"Stop using {app}, boss.",
+            timeout=5
+        )
+
+    except (AttributeError, NotImplementedError):
+        message = f"Stop using {app}, boss."
+        notifier = shutil.which("terminal-notifier") or "/opt/homebrew/bin/terminal-notifier"
+        
+        subprocess.run(
+            [
+                notifier,
+                "-title",
+                "Ghostly Warning",
+                "-message",
+                message,
+                "-sound",
+                "default",
+            ],
+
+            check=False,
+        )
+
+        
+        subprocess.run(
+            [
+                "osascript",
+                "-e",
+                f'display alert "Ghostly Warning" message {json.dumps(message)} as warning',
+            ],
+            check=False,
+        )
 
 def check_apps(blacklist):
     current_detected = set()
@@ -61,6 +98,7 @@ def check_apps(blacklist):
 while True:
     try:
         check_apps(blacklist)
+        haunt(random.choice(blacklist))
         
         #print("\n")
         time.sleep(interval) 
