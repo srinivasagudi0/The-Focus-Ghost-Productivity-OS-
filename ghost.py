@@ -1,13 +1,17 @@
 import json
+import platform
 import random
 import shutil
 import subprocess
+import time
 from plyer import notification
+import psutil
 
+
+# load config (yeah, just a simple wrapper)
 def load_config():
-    with open('config.json', 'r') as f:
-        config = json.load(f)
-    return config
+    with open("config.json", "r") as f:
+        return json.load(f)
 
 config = load_config()
 
@@ -15,10 +19,47 @@ blacklist = config["blacklist"]
 interval = config["interval"]
 exit_message = config["exit"]
 
-import psutil
-import time
+
+def send_notification(title, message):
+    # try the normal way first
+    try:
+        notification.notify(
+            title=title,
+            message=message,
+            timeout=5
+        )
+    except Exception:
+        # eh, whatever
+        pass
+
+    # macOS is always special, cause i have a mac and it’s the only platform i care about for this project, so here we are
+    if platform.system() == "Darwin":
+        notifier = shutil.which("terminal-notifier") or "/opt/homebrew/bin/terminal-notifier"
+
+        if shutil.which(notifier):
+            subprocess.run(
+                [
+                    notifier,
+                    "-title", title,
+                    "-message", message,
+                    "-sound", "default"
+                ],
+                check=False
+            )
+
+        # fallback apple-script thing
+        subprocess.run(
+            [
+                "osascript",
+                "-e",
+                f'display alert {json.dumps(title)} message {json.dumps(message)} as warning giving up after 5'
+            ],
+            check=False
+        )
+
 
 def haunt(app):
+    # spooky ascii (don’t ask)
     print("""
       ___
      /   \\
@@ -33,75 +74,42 @@ def haunt(app):
     |   | |
     |   /-'
     |_.'       
-          """)
-    
+    """)
+
     print(f"Stop using {app}, boss.")
-    try:
-        # for our windows and linux users, we'll use plyer for notifications
-        notification.notify(
-            title="Ghostly Warning",
-            message=f"Stop using {app}, boss.",
-            timeout=5
-        )
+    send_notification("Ghostly Warning", f"Stop using {app}, boss.")
 
-    except (AttributeError, NotImplementedError):
-        message = f"Stop using {app}, boss."
-        notifier = shutil.which("terminal-notifier") or "/opt/homebrew/bin/terminal-notifier"
-        
-        subprocess.run(
-            [
-                notifier,
-                "-title",
-                "Ghostly Warning",
-                "-message",
-                message,
-                "-sound",
-                "default",
-            ],
-
-            check=False,
-        )
-
-        
-        subprocess.run(
-            [
-                "osascript",
-                "-e",
-                f'display alert "Ghostly Warning" message {json.dumps(message)} as warning',
-            ],
-            check=False,
-        )
 
 def check_apps(blacklist):
-    current_detected = set()
+    detected = set()
 
     for proc in psutil.process_iter(["name"]):
         try:
-            app_name = proc.info["name"]
-            if app_name is None:
+            name = proc.info.get("name")
+            if not name:
                 continue
-            lower_name = app_name.lower()
 
+            lower = name.lower()
             for blocked in blacklist:
-                if blocked.lower() in lower_name:
-                    current_detected.add(blocked)
-                    
-        except:
+                if blocked.lower() in lower:
+                    detected.add(blocked)
+
+        except Exception:
+            # processes are weird sometimes
             pass
 
-    for app in sorted(current_detected):
+    for app in sorted(detected):
         print(f"Detected: {app}")
+        haunt(app)
 
-    print()
+    print()  # spacing for sanity
 
-# infinite loop
+
+# main loop (infinite, because discipline)
 while True:
     try:
         check_apps(blacklist)
-        haunt(random.choice(blacklist))
-        
-        #print("\n")
-        time.sleep(interval) 
+        time.sleep(interval)
     except KeyboardInterrupt:
         print("\n")
         print(random.choice(exit_message))
