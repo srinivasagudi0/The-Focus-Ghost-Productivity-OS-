@@ -16,6 +16,8 @@ import psutil
 import time
 
 def check_apps(blacklist):
+    current_detected = set()
+
     for proc in psutil.process_iter(["name"]):
         try:
             app_name = proc.info["name"]
@@ -25,17 +27,23 @@ def check_apps(blacklist):
 
             for blocked in blacklist:
                 if blocked.lower() in lower_name:
-                    print(f"Haunt 👻: {app_name}")
+                    current_detected.add(blocked)
+                    
         except:
             pass
 
+    for app in sorted(current_detected):
+        print(f"Detected: {app}")
+
+    print()
+    
 # infinite loop
 while True:
     try:
         check_apps(blacklist)
+        #print("\n")
         time.sleep(interval) 
     except KeyboardInterrupt:
         print("\n")
-        num = random.randint(1, 25)
-        print(exit_message[num])        
+        print(random.choice(exit_message))
         break
